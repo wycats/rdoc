@@ -1749,8 +1749,13 @@ class RDoc::Parser::Ruby < RDoc::Parser
         @options.title = param
         ''
       else
-        warn "Unrecognized directive '#{directive}'"
-        false
+        if !respond_to?("set_#{directive}_modifier")
+          warn "Unrecognized directive '#{directive}'"
+          false
+        else
+          send("set_#{directive}_modifier", context, param)
+          ''
+        end
       end
     end
 
@@ -2183,6 +2188,8 @@ class RDoc::Parser::Ruby < RDoc::Parser
     @scanner.instance_eval do @continue = false end
     parse_method_parameters meth
 
+    meth.comment = comment
+
     if meth.document_self then
       container.add_method meth
     elsif added_container then
@@ -2207,8 +2214,6 @@ class RDoc::Parser::Ruby < RDoc::Parser
     remove_token_listener(meth)
 
     extract_call_seq comment, meth
-
-    meth.comment = comment
   end
 
   def parse_method_or_yield_parameters(method = nil,
@@ -2679,7 +2684,22 @@ class RDoc::Parser::Ruby < RDoc::Parser
 
     when "arg", "args" then
       context.params = dir[1]
+      
+    else
+      send("set_#{dir[0]}_modifier", context, dir[1])
     end if dir
+  end
+
+  def set_api_modifier(context, level)
+    doc = case @options.api
+    when "private"
+      %w(private plugin public).include?(level)
+    when "plugin"
+      %w(plugin public).include?(level)
+    when "public"
+      %w(public).include?(level)
+    end
+    context.document_self = doc
   end
 
   def remove_private_comments(comment)

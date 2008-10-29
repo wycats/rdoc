@@ -7,6 +7,10 @@ require 'optparse'
 class RDoc::Options
 
   ##
+  # The API level
+  attr_reader :api
+
+  ##
   # Should the output be placed into a single file
 
   attr_reader :all_one_file
@@ -155,6 +159,7 @@ class RDoc::Options
   attr_reader :webcvs
 
   def initialize(generators = {}) # :nodoc:
+    @api = "public"
     @op_dir = "doc"
     @op_name = nil
     @show_all = false
@@ -227,6 +232,11 @@ Usage: #{opt.program_name} [options] [names...]
       opt.separator nil
       opt.separator "Options:"
       opt.separator nil
+
+      opt.on("--api=LEVEL", "The level of API to generate",
+                            "docs for") do |level|
+         @api = level                     
+      end
 
       opt.on("--accessor=ACCESSORS", "-A", Array,
              "A comma separated list of additional class",

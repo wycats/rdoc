@@ -389,7 +389,7 @@ module RDoc
   CONSTANT_MODIFIERS = GENERAL_MODIFIERS
 
   METHOD_MODIFIERS = GENERAL_MODIFIERS +
-    %w[arg args yield yields notnew not-new not_new doc]
+    %w[arg args yield yields notnew not-new not_new doc api]
 
 end
 
